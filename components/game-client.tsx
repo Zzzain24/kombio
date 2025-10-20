@@ -521,11 +521,12 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
       </div>
 
       {/* Main Game Area */}
-      <div className="flex flex-1 flex-col items-center justify-center gap-8">
-        {/* Opponent Hands */}
-        <div className="flex flex-wrap justify-center gap-6">
+      <div className="flex flex-1 items-center justify-center relative">
+        {/* Left Side Players (3rd player) */}
+        <div className="absolute left-1/3 flex flex-col gap-6">
           {players
             .filter((p) => p.user_id !== currentUserId)
+            .slice(1, 2)
             .map((player) => (
               <div key={player.id} className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2">
@@ -550,132 +551,188 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
             ))}
         </div>
 
-        {/* Center Area - Deck and Discard */}
-        <div className="flex items-center gap-8">
-          <div className="flex flex-col items-center gap-2">
-            <Button
-              onClick={handleDrawFromDeck}
-              disabled={!isMyTurn || !!drawnCard || game.deck.length === 0 || isKombioLocked}
-              className="h-32 w-24 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
-            >
-              <div className="flex flex-col items-center gap-1">
-                <Shuffle className="h-6 w-6" />
-                <span className="text-xs">Draw</span>
-                <span className="text-xs">({game.deck.length})</span>
+        {/* Center Area - Deck/Discard Centered */}
+        <div className="flex flex-col items-center gap-8">
+          {/* Top Opponent Hand (2nd player) */}
+          {players.filter((p) => p.user_id !== currentUserId).slice(0, 1).map((player) => (
+            <div key={player.id} className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-white">
+                  {player.profile?.display_name?.[0] || "P"}
+                </div>
+                <span className="text-sm font-medium text-white">{player.profile?.display_name || "Player"}</span>
+                {player.user_id === game.host_id && <Crown className="h-4 w-4 text-yellow-400" />}
+                {player.user_id === game.current_turn_player_id && (
+                  <Badge variant="secondary" className="text-xs">
+                    Turn
+                  </Badge>
+                )}
               </div>
-            </Button>
-            <span className="text-xs text-white/70">Deck</span>
+              <PlayerHand
+                cards={player.current_hand}
+                isOpponent={true}
+                onCardClick={matchingMode ? (idx) => handleAttemptMatch(player.user_id, idx) : undefined}
+              />
+              <div className="text-xs text-white/70">Score: {player.total_score}</div>
+            </div>
+          ))}
+
+          {/* Center Area - Deck and Discard */}
+          <div className="flex items-center gap-8">
+            <div className="flex flex-col items-center gap-2">
+              <Button
+                onClick={handleDrawFromDeck}
+                disabled={!isMyTurn || !!drawnCard || game.deck.length === 0 || isKombioLocked}
+                className="h-32 w-24 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <Shuffle className="h-6 w-6" />
+                  <span className="text-xs">Draw</span>
+                  <span className="text-xs">({game.deck.length})</span>
+                </div>
+              </Button>
+              <span className="text-xs text-white/70">Deck</span>
+            </div>
+
+            {drawnCard && (
+              <div className="flex flex-col items-center gap-2">
+                <GameCard card={drawnCard} revealed={true} />
+                <div className="flex gap-2">
+                  <Button onClick={handleDiscardDrawnCard} variant="secondary" size="sm">
+                    {canUseAbility(drawnCard.value) ? (
+                      <>
+                        <Zap className="h-3 w-3 mr-1" />
+                        Use Ability
+                      </>
+                    ) : (
+                      "Discard"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col items-center gap-2">
+              <Button
+                onClick={handleDrawFromDiscard}
+                disabled={!isMyTurn || !!drawnCard || !game.last_discarded_card || isKombioLocked}
+                className="h-32 w-24 rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
+              >
+                {game.last_discarded_card ? (
+                  <GameCard card={game.last_discarded_card} revealed={true} compact />
+                ) : (
+                  <div className="flex flex-col items-center gap-1">
+                    <Eye className="h-6 w-6" />
+                    <span className="text-xs">Empty</span>
+                  </div>
+                )}
+              </Button>
+              <span className="text-xs text-white/70">Discard ({game.discard_pile.length})</span>
+              {game.last_discarded_card && !drawnCard && (
+                <Button
+                  onClick={() => setMatchingMode(!matchingMode)}
+                  variant={matchingMode ? "destructive" : "secondary"}
+                  size="sm"
+                >
+                  {matchingMode ? "Cancel Match" : "Try Match"}
+                </Button>
+              )}
+            </div>
           </div>
 
-          {drawnCard && (
-            <div className="flex flex-col items-center gap-2">
-              <GameCard card={drawnCard} revealed={true} />
-              <div className="flex gap-2">
-                <Button onClick={handleDiscardDrawnCard} variant="secondary" size="sm">
-                  {canUseAbility(drawnCard.value) ? (
-                    <>
-                      <Zap className="h-3 w-3 mr-1" />
-                      Use Ability
-                    </>
-                  ) : (
-                    "Discard"
-                  )}
-                </Button>
+          {/* Current Player Hand */}
+          {currentPlayer && (
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 font-semibold text-white">
+                  {currentPlayer.profile?.display_name?.[0] || "P"}
+                </div>
+                <span className="font-medium text-white">{currentPlayer.profile?.display_name || "You"}</span>
+                {isMyTurn && (
+                  <Badge variant="default" className="bg-green-500">
+                    Your Turn
+                  </Badge>
+                )}
+              </div>
+              <PlayerHand
+                cards={currentPlayer.current_hand}
+                isOpponent={false}
+                onCardClick={(idx) => {
+                  // During peek window, allow clicking only bottom two cards to reveal temporarily
+                  const bottomIndices = [2, 3].filter((i) => i < currentPlayer.current_hand.length)
+                  if (peekAllowed && bottomIndices.includes(idx)) {
+                    // Start countdown on first click
+                    setPeekRevealedIndices((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
+                    if (!peekActive) {
+                      setPeekActive(true)
+                      setPeekCountdown(10)
+                    }
+                    return
+                  }
+                  if (drawnCard) return handleSwapCard(idx)
+                  if (matchingMode) return handleAttemptMatch(currentUserId, idx)
+                }}
+                viewedCards={currentPlayer.viewed_cards}
+                forceRevealIndices={peekRevealedIndices}
+                compact={false}
+              />
+              {peekActive && (
+                <div className="text-xs text-white/90">Hiding in {peekCountdown}s</div>
+              )}
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-white/90">Score: {currentPlayer.total_score}</div>
+                {isMyTurn && !isKombioLocked && !game.kombio_caller_id && (
+                  <Button onClick={handleCallKombio} variant="outline" size="sm" className="gap-2 bg-transparent">
+                    <Zap className="h-4 w-4" />
+                    Call KOMBIO
+                  </Button>
+                )}
               </div>
             </div>
           )}
-
-          <div className="flex flex-col items-center gap-2">
-            <Button
-              onClick={handleDrawFromDiscard}
-              disabled={!isMyTurn || !!drawnCard || !game.last_discarded_card || isKombioLocked}
-              className="h-32 w-24 rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
-            >
-              {game.last_discarded_card ? (
-                <GameCard card={game.last_discarded_card} revealed={true} compact />
-              ) : (
-                <div className="flex flex-col items-center gap-1">
-                  <Eye className="h-6 w-6" />
-                  <span className="text-xs">Empty</span>
-                </div>
-              )}
-            </Button>
-            <span className="text-xs text-white/70">Discard ({game.discard_pile.length})</span>
-            {game.last_discarded_card && !drawnCard && (
-              <Button
-                onClick={() => setMatchingMode(!matchingMode)}
-                variant={matchingMode ? "destructive" : "secondary"}
-                size="sm"
-              >
-                {matchingMode ? "Cancel Match" : "Try Match"}
-              </Button>
-            )}
-          </div>
         </div>
 
-        {/* Current Player Hand */}
-        {currentPlayer && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 font-semibold text-white">
-                {currentPlayer.profile?.display_name?.[0] || "P"}
+        {/* Right Side Players (4th player) */}
+        <div className="absolute right-1/3 flex flex-col gap-6">
+          {players
+            .filter((p) => p.user_id !== currentUserId)
+            .slice(2)
+            .map((player) => (
+              <div key={player.id} className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-white">
+                    {player.profile?.display_name?.[0] || "P"}
+                  </div>
+                  <span className="text-sm font-medium text-white">{player.profile?.display_name || "Player"}</span>
+                  {player.user_id === game.host_id && <Crown className="h-4 w-4 text-yellow-400" />}
+                  {player.user_id === game.current_turn_player_id && (
+                    <Badge variant="secondary" className="text-xs">
+                      Turn
+                    </Badge>
+                  )}
+                </div>
+                <PlayerHand
+                  cards={player.current_hand}
+                  isOpponent={true}
+                  onCardClick={matchingMode ? (idx) => handleAttemptMatch(player.user_id, idx) : undefined}
+                />
+                <div className="text-xs text-white/70">Score: {player.total_score}</div>
               </div>
-              <span className="font-medium text-white">{currentPlayer.profile?.display_name || "You"}</span>
-              {isMyTurn && (
-                <Badge variant="default" className="bg-green-500">
-                  Your Turn
-                </Badge>
-              )}
-            </div>
-            <PlayerHand
-              cards={currentPlayer.current_hand}
-              isOpponent={false}
-              onCardClick={(idx) => {
-                // During peek window, allow clicking only bottom two cards to reveal temporarily
-                const bottomIndices = [2, 3].filter((i) => i < currentPlayer.current_hand.length)
-                if (peekAllowed && bottomIndices.includes(idx)) {
-                  // Start countdown on first click
-                  setPeekRevealedIndices((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
-                  if (!peekActive) {
-                    setPeekActive(true)
-                    setPeekCountdown(10)
-                  }
-                  return
-                }
-                if (drawnCard) return handleSwapCard(idx)
-                if (matchingMode) return handleAttemptMatch(currentUserId, idx)
-              }}
-              viewedCards={currentPlayer.viewed_cards}
-              forceRevealIndices={peekRevealedIndices}
-              compact={false}
-            />
-            {peekActive && (
-              <div className="text-xs text-white/90">Hiding in {peekCountdown}s</div>
-            )}
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-white/90">Score: {currentPlayer.total_score}</div>
-              {isMyTurn && !isKombioLocked && !game.kombio_caller_id && (
-                <Button onClick={handleCallKombio} variant="outline" size="sm" className="gap-2 bg-transparent">
-                  <Zap className="h-4 w-4" />
-                  Call KOMBIO
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {!isMyTurn && currentTurnPlayer && (
-          <div className="rounded-lg bg-white/10 px-6 py-3 text-center text-white backdrop-blur-sm">
-            Waiting for {currentTurnPlayer.profile?.display_name || "player"}'s turn...
-          </div>
-        )}
-
-        {matchingMode && (
-          <div className="rounded-lg bg-yellow-500/20 border-2 border-yellow-500 px-6 py-3 text-center text-white backdrop-blur-sm">
-            Click a card to attempt a match with the last discarded card!
-          </div>
-        )}
+            ))}
+        </div>
       </div>
+
+      {!isMyTurn && currentTurnPlayer && (
+        <div className="rounded-lg bg-white/10 px-6 py-3 text-center text-white backdrop-blur-sm">
+          Waiting for {currentTurnPlayer.profile?.display_name || "player"}'s turn...
+        </div>
+      )}
+
+      {matchingMode && (
+        <div className="rounded-lg bg-yellow-500/20 border-2 border-yellow-500 px-6 py-3 text-center text-white backdrop-blur-sm">
+          Click a card to attempt a match with the last discarded card!
+        </div>
+      )}
 
       {drawnCard && (
         <AbilityModal
