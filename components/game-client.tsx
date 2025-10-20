@@ -543,8 +543,23 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
                 </div>
                 <PlayerHand
                   cards={player.current_hand}
-                  isOpponent={true}
-                  onCardClick={matchingMode ? (idx) => handleAttemptMatch(player.user_id, idx) : undefined}
+                  isOpponent={player.user_id !== currentUserId}
+                  onCardClick={(idx) => {
+                    if (matchingMode) return handleAttemptMatch(player.user_id, idx)
+                    // Allow peeking at own cards for all players
+                    if (player.user_id === currentUserId) {
+                      const bottomIndices = [2, 3].filter((i) => i < player.current_hand.length)
+                      if (peekAllowed && bottomIndices.includes(idx)) {
+                        setPeekRevealedIndices((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
+                        if (!peekActive) {
+                          setPeekActive(true)
+                          setPeekCountdown(10)
+                        }
+                      }
+                    }
+                  }}
+                  viewedCards={player.viewed_cards}
+                  forceRevealIndices={player.user_id === currentUserId ? peekRevealedIndices : undefined}
                 />
                 <div className="text-xs text-white/70">Score: {player.total_score}</div>
               </div>
@@ -713,8 +728,23 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
                 </div>
                 <PlayerHand
                   cards={player.current_hand}
-                  isOpponent={true}
-                  onCardClick={matchingMode ? (idx) => handleAttemptMatch(player.user_id, idx) : undefined}
+                  isOpponent={player.user_id !== currentUserId}
+                  onCardClick={(idx) => {
+                    if (matchingMode) return handleAttemptMatch(player.user_id, idx)
+                    // Allow peeking at own cards for all players
+                    if (player.user_id === currentUserId) {
+                      const bottomIndices = [2, 3].filter((i) => i < player.current_hand.length)
+                      if (peekAllowed && bottomIndices.includes(idx)) {
+                        setPeekRevealedIndices((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
+                        if (!peekActive) {
+                          setPeekActive(true)
+                          setPeekCountdown(10)
+                        }
+                      }
+                    }
+                  }}
+                  viewedCards={player.viewed_cards}
+                  forceRevealIndices={player.user_id === currentUserId ? peekRevealedIndices : undefined}
                 />
                 <div className="text-xs text-white/70">Score: {player.total_score}</div>
               </div>
