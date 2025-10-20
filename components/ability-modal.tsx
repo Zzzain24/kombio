@@ -27,16 +27,20 @@ export default function AbilityModal({
 }: AbilityModalProps) {
   const [selectedCards, setSelectedCards] = useState<{ playerId: string; cardIndex: number }[]>([])
   const [revealedCards, setRevealedCards] = useState<{ playerId: string; cardIndex: number; card: Card }[]>([])
+  const [selectionLocked, setSelectionLocked] = useState(false)
 
   const abilityType = card.value
 
   function handleCardSelect(playerId: string, cardIndex: number) {
     // For look abilities (7-10), just reveal the card
     if (abilityType >= 7 && abilityType <= 10) {
+      if (selectionLocked) return
       const player = players.find((p) => p.user_id === playerId)
       if (player) {
         const selectedCard = player.current_hand[cardIndex]
         setRevealedCards([{ playerId, cardIndex, card: selectedCard }])
+        // Lock further selection changes for look abilities
+        setSelectionLocked(true)
       }
       return
     }
@@ -87,6 +91,7 @@ export default function AbilityModal({
   function handleClose() {
     setSelectedCards([])
     setRevealedCards([])
+    setSelectionLocked(false)
     onClose()
   }
 
@@ -156,7 +161,7 @@ export default function AbilityModal({
                       <PlayerHand
                         cards={player.current_hand}
                         isOpponent={!isOwnHand}
-                        onCardClick={canSelectFromThis ? (idx) => handleCardSelect(player.user_id, idx) : undefined}
+                        onCardClick={canSelectFromThis && !selectionLocked ? (idx) => handleCardSelect(player.user_id, idx) : undefined}
                         compact
                         forceRevealIndices={player.current_hand.map((_, idx) => (
                           revealedCards.some((r) => r.playerId === player.user_id && r.cardIndex === idx) ? idx : -1
