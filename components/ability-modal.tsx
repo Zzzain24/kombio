@@ -45,25 +45,58 @@ export default function AbilityModal({
       return
     }
 
-    // For swap abilities (11-14)
+    // For swap abilities (11-14): lock after required selections, no deselect
+    if (selectionLocked) return
+
+    // Prevent duplicate selections
     const isAlreadySelected = selectedCards.some((s) => s.playerId === playerId && s.cardIndex === cardIndex)
+    if (isAlreadySelected) return
 
-    if (isAlreadySelected) {
-      setSelectedCards(selectedCards.filter((s) => !(s.playerId === playerId && s.cardIndex === cardIndex)))
-    } else {
-      const maxSelections = abilityType === 13 ? 1 : 2
-      if (selectedCards.length < maxSelections) {
-        setSelectedCards([...selectedCards, { playerId, cardIndex }])
-
-        // For look & swap abilities, reveal the card
-        if (abilityType >= 13) {
-          const player = players.find((p) => p.user_id === playerId)
-          if (player) {
-            const selectedCard = player.current_hand[cardIndex]
-            setRevealedCards([...revealedCards, { playerId, cardIndex, card: selectedCard }])
-          }
-        }
+    if (abilityType === 11 || abilityType === 12) {
+      // Blind swap: select exactly 2, no reveals
+      if (selectedCards.length === 1 && selectedCards[0].playerId === playerId) return
+      const next = [...selectedCards, { playerId, cardIndex }]
+      if (next.length <= 2) {
+        setSelectedCards(next)
+        if (next.length === 2) setSelectionLocked(true)
       }
+      return
+    }
+
+    if (abilityType === 13) {
+      // Look + swap: reveal only the FIRST selected card, second is blind; lock at 2
+      if (selectedCards.length === 0) {
+        const player = players.find((p) => p.user_id === playerId)
+        if (player) {
+          const selectedCard = player.current_hand[cardIndex]
+          setRevealedCards([...revealedCards, { playerId, cardIndex, card: selectedCard }])
+        }
+        setSelectedCards([{ playerId, cardIndex }])
+        return
+      }
+      if (selectedCards.length === 1) {
+        if (selectedCards[0].playerId === playerId) return
+        const next = [...selectedCards, { playerId, cardIndex }]
+        setSelectedCards(next)
+        setSelectionLocked(true)
+      }
+      return
+    }
+
+    if (abilityType === 14) {
+      // Double look + swap: reveal BOTH selected cards; lock at 2
+      if (selectedCards.length === 1 && selectedCards[0].playerId === playerId) return
+      const player = players.find((p) => p.user_id === playerId)
+      if (player) {
+        const selectedCard = player.current_hand[cardIndex]
+        setRevealedCards([...revealedCards, { playerId, cardIndex, card: selectedCard }])
+      }
+      const next = [...selectedCards, { playerId, cardIndex }]
+      if (next.length <= 2) {
+        setSelectedCards(next)
+        if (next.length === 2) setSelectionLocked(true)
+      }
+      return
     }
   }
 
@@ -161,7 +194,15 @@ export default function AbilityModal({
                       <PlayerHand
                         cards={player.current_hand}
                         isOpponent={!isOwnHand}
-                        onCardClick={canSelectFromThis && !selectionLocked ? (idx) => handleCardSelect(player.user_id, idx) : undefined}
+                        onCardClick={
+                          canSelectFromThis && !selectionLocked
+                            ? (idx) => {
+                                // If one card is already selected, block selecting a second from same player
+                                if (selectedCards.length === 1 && selectedCards[0].playerId === player.user_id) return
+                                handleCardSelect(player.user_id, idx)
+                              }
+                            : undefined
+                        }
                         compact
                         forceRevealIndices={player.current_hand.map((_, idx) => (
                           revealedCards.some((r) => r.playerId === player.user_id && r.cardIndex === idx) ? idx : -1
@@ -169,6 +210,16 @@ export default function AbilityModal({
                         highlightIndices={player.current_hand.map((_, idx) => (
                           selectedCards.some((s) => s.playerId === player.user_id && s.cardIndex === idx) ? idx : -1
                         )).filter((v) => v !== -1)}
+                        disabledIndices={(() => {
+                          // After first selection, disable remaining cards for the same player
+                          if (selectedCards.length === 1) {
+                            const sel = selectedCards[0]
+                            if (sel.playerId === player.user_id) {
+                              return player.current_hand.map((_, idx) => idx)
+                            }
+                          }
+                          return []
+                        })()}
                       />
                     </div>
                   </div>

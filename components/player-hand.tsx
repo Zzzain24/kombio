@@ -12,25 +12,28 @@ interface PlayerHandProps {
   compact?: boolean
   forceRevealIndices?: number[]
   highlightIndices?: number[]
+  disabledIndices?: number[]
 }
 
-export default function PlayerHand({ cards, isOpponent, onCardClick, viewedCards = [], compact, forceRevealIndices, highlightIndices }: PlayerHandProps) {
+export default function PlayerHand({ cards, isOpponent, onCardClick, viewedCards = [], compact, forceRevealIndices, highlightIndices, disabledIndices }: PlayerHandProps) {
   return (
     <div className="grid grid-cols-2 gap-3 justify-items-center w-fit mx-auto">
       {cards.map((card, index) => {
         const hasBeenViewed = viewedCards.includes(card.id)
         const isForcedReveal = forceRevealIndices?.includes(index) ?? false
         const isHighlighted = highlightIndices?.includes(index) ?? false
+        const isDisabled = disabledIndices?.includes(index) ?? false
         return (
           <div key={card.id} className="relative">
             <GameCard
               card={card}
               revealed={!isOpponent && hasBeenViewed || isForcedReveal}
-              onClick={onCardClick ? () => onCardClick(index) : undefined}
+              onClick={!isDisabled && onCardClick ? () => onCardClick(index) : undefined}
               compact={compact}
               className={cn(
                 onCardClick && "ring-2 ring-yellow-400",
-                isHighlighted && "ring-2 ring-primary"
+                isHighlighted && "ring-2 ring-primary",
+                isDisabled && "ring-2 ring-black cursor-not-allowed opacity-70"
               )}
             />
             {!isOpponent && hasBeenViewed && (
