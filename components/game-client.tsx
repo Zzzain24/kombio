@@ -294,13 +294,9 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
 
   async function handleAbilityComplete(data: any) {
     if (data.type === "view" && currentPlayer) {
-      const viewedCards = [...currentPlayer.viewed_cards]
-      data.cards.forEach((c: any) => {
-        if (c.playerId === currentUserId && !viewedCards.includes(c.card.id)) {
-          viewedCards.push(c.card.id)
-        }
-      })
-      await supabase.from("game_players").update({ viewed_cards: viewedCards }).eq("id", currentPlayer.id)
+      // Do not persist reveals for own cards; they should remain face down after peeking
+      // This intentionally avoids updating viewed_cards for self views
+      // If in future we support persisting opponent reveals, handle that separately
     } else if (data.type === "swap") {
       const [card1, card2] = data.cards
       const player1 = players.find((p) => p.user_id === card1.playerId)
