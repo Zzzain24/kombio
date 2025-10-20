@@ -37,13 +37,19 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
   const [showRoundEndModal, setShowRoundEndModal] = useState(false)
   const [roundScores, setRoundScores] = useState<(GamePlayer & { profile: any; roundScore: number })[]>([])
   const [matchingMode, setMatchingMode] = useState(false)
+  // Initial peek state for bottom two cards at the start of each round
+  const [peekActive, setPeekActive] = useState(false)
+  const [peekAllowed, setPeekAllowed] = useState(false)
+  const [peekRevealedIndices, setPeekRevealedIndices] = useState<number[]>([])
+  const [peekCountdown, setPeekCountdown] = useState<number>(0)
+  const [lastPeekRound, setLastPeekRound] = useState<number | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
   const currentPlayer = players.find((p) => p.user_id === currentUserId)
   const isMyTurn = game.current_turn_player_id === currentUserId
   const currentTurnPlayer = players.find((p) => p.user_id === game.current_turn_player_id)
-  const isKombioLocked = game.kombio_caller_id && game.kombio_caller_id !== currentUserId && players.length > 2
+  const isKombioLocked = !!(game.kombio_caller_id && game.kombio_caller_id !== currentUserId && players.length > 2)
 
   useEffect(() => {
     // Subscribe to game updates
@@ -158,6 +164,39 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
       handleRoundEnd()
     }
   }, [game.kombio_caller_id, game.current_turn_player_id])
+
+  // Allow a one-time peek per round for the current user (timer starts on first click)
+  useEffect(() => {
+    // Only for the local user and only once per round
+    if (!currentPlayer) return
+    if (lastPeekRound === game.current_round) return
+
+    // Enable peek for this round; timer will start on first bottom-card click
+    setPeekAllowed(true)
+    setPeekActive(false)
+    setPeekRevealedIndices([])
+    setPeekCountdown(0)
+    setLastPeekRound(game.current_round)
+  }, [game.current_round, currentPlayer, lastPeekRound])
+
+  // Manage active countdown while peeking
+  useEffect(() => {
+    if (!peekActive) return
+    const interval = setInterval(() => {
+      setPeekCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          // End peek: hide cards and disallow further peeks this round
+          setPeekActive(false)
+          setPeekAllowed(false)
+          setPeekRevealedIndices([])
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [peekActive])
 
   async function handleDrawFromDeck() {
     if (!isMyTurn || drawnCard || isKombioLocked) return
@@ -595,11 +634,28 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
             <PlayerHand
               cards={currentPlayer.current_hand}
               isOpponent={false}
-              onCardClick={
-                drawnCard ? handleSwapCard : matchingMode ? (idx) => handleAttemptMatch(currentUserId, idx) : undefined
-              }
+              onCardClick={(idx) => {
+                // During peek window, allow clicking only bottom two cards to reveal temporarily
+                const bottomIndices = [2, 3].filter((i) => i < currentPlayer.current_hand.length)
+                if (peekAllowed && bottomIndices.includes(idx)) {
+                  // Start countdown on first click
+                  setPeekRevealedIndices((prev) => (prev.includes(idx) ? prev : [...prev, idx]))
+                  if (!peekActive) {
+                    setPeekActive(true)
+                    setPeekCountdown(10)
+                  }
+                  return
+                }
+                if (drawnCard) return handleSwapCard(idx)
+                if (matchingMode) return handleAttemptMatch(currentUserId, idx)
+              }}
               viewedCards={currentPlayer.viewed_cards}
+              forceRevealIndices={peekRevealedIndices}
+              compact={false}
             />
+            {peekActive && (
+              <div className="text-xs text-white/90">Hiding in {peekCountdown}s</div>
+            )}
             <div className="flex items-center gap-4">
               <div className="text-sm text-white/90">Score: {currentPlayer.total_score}</div>
               {isMyTurn && !isKombioLocked && !game.kombio_caller_id && (
