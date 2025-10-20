@@ -13,32 +13,11 @@ interface GameCardProps {
 }
 
 export default function GameCard({ card, revealed = false, compact = false, onClick, className }: GameCardProps) {
-  const getCardColor = (suit?: string) => {
-    if (suit === "hearts" || suit === "diamonds") return "text-red-600"
+  const getCardColor = () => {
     return "text-gray-900"
   }
 
-  const getSuitSymbol = (suit?: string) => {
-    switch (suit) {
-      case "hearts":
-        return "♥"
-      case "diamonds":
-        return "♦"
-      case "clubs":
-        return "♣"
-      case "spades":
-        return "♠"
-      default:
-        return ""
-    }
-  }
-
   const getCardLabel = (value: number) => {
-    if (value === 0) return "★"
-    if (value === 11) return "J"
-    if (value === 12) return "Q"
-    if (value === 13) return "K"
-    if (value === 14) return "A"
     return value.toString()
   }
 
@@ -46,14 +25,14 @@ export default function GameCard({ card, revealed = false, compact = false, onCl
     return (
       <Card
         className={cn(
-          "flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg",
+          "flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg",
           compact ? "h-20 w-14" : "h-32 w-24",
           onClick && "cursor-pointer hover:scale-105 transition-transform",
           className,
         )}
         onClick={onClick}
       >
-        <div className="text-2xl font-bold">K</div>
+        <div className="text-2xl font-bold">?</div>
       </Card>
     )
   }
@@ -61,17 +40,16 @@ export default function GameCard({ card, revealed = false, compact = false, onCl
   return (
     <Card
       className={cn(
-        "flex flex-col items-center justify-center bg-white shadow-lg",
+        "flex flex-col items-center justify-center bg-white shadow-lg border border-slate-200",
         compact ? "h-20 w-14" : "h-32 w-24",
         onClick && "cursor-pointer hover:scale-105 transition-transform",
         className,
       )}
       onClick={onClick}
     >
-      <div className={cn("text-3xl font-bold", getCardColor(card.suit))}>{getCardLabel(card.value)}</div>
-      <div className={cn("text-2xl", getCardColor(card.suit))}>{getSuitSymbol(card.suit)}</div>
+      <div className={cn("text-3xl font-bold", getCardColor())}>{getCardLabel(card.value)}</div>
       {card.value >= 7 && (
-        <div className="mt-1 text-xs text-gray-500 text-center px-1">
+        <div className="mt-1 text-[10px] text-gray-500 text-center px-1">
           {card.value === 7 || card.value === 8
             ? "Look Own"
             : card.value === 9 || card.value === 10

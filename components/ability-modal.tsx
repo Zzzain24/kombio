@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import type { Card, GamePlayer } from "@/lib/types"
 import GameCard from "@/components/game-card"
+import PlayerHand from "@/components/player-hand"
 import { getAbilityDescription } from "@/lib/game-logic"
 
 interface AbilityModalProps {
@@ -151,31 +152,19 @@ export default function AbilityModal({
                       </div>
                       <span className="text-sm font-medium">{player.profile?.display_name || "Player"}</span>
                     </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {player.current_hand.map((card, idx) => {
-                        const isSelected = selectedCards.some(
-                          (s) => s.playerId === player.user_id && s.cardIndex === idx,
-                        )
-                        const isRevealed = revealedCards.some(
-                          (r) => r.playerId === player.user_id && r.cardIndex === idx,
-                        )
-
-                        return (
-                          <button
-                            key={idx}
-                            onClick={() => canSelectFromThis && handleCardSelect(player.user_id, idx)}
-                            disabled={!canSelectFromThis}
-                            className="relative"
-                          >
-                            <GameCard
-                              card={card}
-                              revealed={isRevealed}
-                              compact
-                              className={isSelected ? "ring-2 ring-primary" : ""}
-                            />
-                          </button>
-                        )
-                      })}
+                    <div>
+                      <PlayerHand
+                        cards={player.current_hand}
+                        isOpponent={!isOwnHand}
+                        onCardClick={canSelectFromThis ? (idx) => handleCardSelect(player.user_id, idx) : undefined}
+                        compact
+                        forceRevealIndices={player.current_hand.map((_, idx) => (
+                          revealedCards.some((r) => r.playerId === player.user_id && r.cardIndex === idx) ? idx : -1
+                        )).filter((v) => v !== -1)}
+                        highlightIndices={player.current_hand.map((_, idx) => (
+                          selectedCards.some((s) => s.playerId === player.user_id && s.cardIndex === idx) ? idx : -1
+                        )).filter((v) => v !== -1)}
+                      />
                     </div>
                   </div>
                 )

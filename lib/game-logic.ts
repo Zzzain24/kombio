@@ -67,18 +67,27 @@ export function shuffleDeck(deck: Card[]): Card[] {
 
 export function createDeck(): Card[] {
   const deck: Card[] = []
-  const suits = ["hearts", "diamonds", "clubs", "spades"]
 
-  // Add cards 0-14 for each suit
-  for (let value = 0; value <= 14; value++) {
-    for (const suit of suits) {
+  // Deck composition (total 70 cards):
+  // -1, 0: 3 each
+  // 1-12: 5 each
+  // 13, 14: 2 each
+  const counts: Record<number, number> = {}
+  counts[-1] = 3
+  counts[0] = 3
+  for (let v = 1; v <= 12; v++) counts[v] = 5
+  counts[13] = 2
+  counts[14] = 2
+
+  Object.entries(counts).forEach(([valueString, count]) => {
+    const value = Number(valueString)
+    for (let i = 0; i < count; i++) {
       deck.push({
-        id: `${suit}-${value}-${Math.random().toString(36).substring(7)}`,
+        id: `${value}-${i}-${Math.random().toString(36).substring(7)}`,
         value,
-        suit,
       })
     }
-  }
+  })
 
   return shuffleDeck(deck)
 }
