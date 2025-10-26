@@ -26,13 +26,13 @@ export default function GameCard({ card, revealed = false, compact = false, onCl
       <Card
         className={cn(
           "flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg",
-          compact ? "h-20 w-14" : "h-32 w-24",
+          compact ? "h-16 w-12" : "h-24 w-[4.5rem]",
           onClick && "cursor-pointer hover:scale-105 transition-transform",
           className,
         )}
         onClick={onClick}
       >
-        <div className="text-2xl font-bold">?</div>
+        <div className="text-xl font-bold">?</div>
       </Card>
     )
   }
@@ -41,13 +41,13 @@ export default function GameCard({ card, revealed = false, compact = false, onCl
     <Card
       className={cn(
         "flex flex-col items-center justify-center bg-white shadow-lg border border-slate-200",
-        compact ? "h-20 w-14" : "h-32 w-24",
+        compact ? "h-16 w-12" : "h-24 w-[4.5rem]",
         onClick && "cursor-pointer hover:scale-105 transition-transform",
         className,
       )}
       onClick={onClick}
     >
-      <div className={cn("text-3xl font-bold", getCardColor())}>{getCardLabel(card.value)}</div>
+      <div className={cn("text-xl font-bold", getCardColor())}>{getCardLabel(card.value)}</div>
       {card.value >= 7 && (
         <div className="mt-1 text-[10px] text-gray-500 text-center px-1">
           {card.value === 7 || card.value === 8

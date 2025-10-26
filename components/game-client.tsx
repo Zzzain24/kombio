@@ -549,7 +549,7 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
       {/* Main Game Area */}
       <div className="flex flex-1 items-center justify-center relative">
         {/* Left Side Players (3rd player) */}
-        <div className="absolute left-1/3 flex flex-col gap-6">
+        <div className="absolute left-1/3 flex flex-col gap-4">
           {players
             .filter((p) => p.user_id !== currentUserId)
             .slice(1, 2)
@@ -593,7 +593,7 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
         </div>
 
         {/* Center Area - Deck/Discard Centered */}
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-4">
           {/* Top Opponent Hand (2nd player) */}
           {players.filter((p) => p.user_id !== currentUserId).slice(0, 1).map((player) => (
             <div key={player.id} className="flex flex-col items-center gap-2">
@@ -619,17 +619,17 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
           ))}
 
           {/* Center Area - Deck and Discard */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4">
             <div className="flex flex-col items-center gap-2">
               <Button
                 onClick={handleDrawFromDeck}
                 disabled={!isMyTurn || !!drawnCard || game.deck.length === 0 || isKombioLocked}
-                className="h-32 w-24 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                className="h-20 w-16 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
               >
                 <div className="flex flex-col items-center gap-1">
-                  <Shuffle className="h-6 w-6" />
+                  <Shuffle className="h-4 w-4" />
                   <span className="text-xs">Draw</span>
-                  <span className="text-xs">({game.deck.length})</span>
+                  <span className="text-[10px]">({game.deck.length})</span>
                 </div>
               </Button>
               <span className="text-xs text-white/70">Deck</span>
@@ -657,13 +657,13 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
               <Button
                 onClick={handleDrawFromDiscard}
                 disabled={!isMyTurn || !!drawnCard || !game.last_discarded_card || isKombioLocked}
-                className="h-32 w-24 rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
+                className="h-20 w-16 rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
               >
                 {game.last_discarded_card ? (
                   <GameCard card={game.last_discarded_card} revealed={true} compact />
                 ) : (
                   <div className="flex flex-col items-center gap-1">
-                    <Eye className="h-6 w-6" />
+                    <Eye className="h-4 w-4" />
                     <span className="text-xs">Empty</span>
                   </div>
                 )}
@@ -734,7 +734,7 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
         </div>
 
         {/* Right Side Players (4th player) */}
-        <div className="absolute right-1/3 flex flex-col gap-6">
+        <div className="absolute right-1/3 flex flex-col gap-4">
           {players
             .filter((p) => p.user_id !== currentUserId)
             .slice(2)

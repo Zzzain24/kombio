@@ -17,7 +17,7 @@ interface PlayerHandProps {
 
 export default function PlayerHand({ cards, isOpponent, onCardClick, viewedCards = [], compact, forceRevealIndices, highlightIndices, disabledIndices }: PlayerHandProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 justify-items-center w-fit mx-auto">
+    <div className="grid grid-cols-2 gap-2 justify-items-center w-fit mx-auto">
       {cards.map((card, index) => {
         const hasBeenViewed = viewedCards.includes(card.id)
         const isForcedReveal = forceRevealIndices?.includes(index) ?? false
