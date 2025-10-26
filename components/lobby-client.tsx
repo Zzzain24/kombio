@@ -104,6 +104,12 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
         
         if (fullGame) {
           setGame(fullGame as Game)
+          
+          // Redirect if game started
+          if (fullGame.status === "playing") {
+            router.push(`/game/${game.id}`)
+            router.refresh()
+          }
         }
       }
 
@@ -135,7 +141,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
           setPlayers(playersWithProfiles)
         }
       }
-}, 5000) // Poll every 5 seconds as backup
+}, 2000) // Poll every 2 seconds as backup
 
     return () => {
       gameChannel.unsubscribe()
@@ -228,8 +234,12 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
 
       console.log("Game started successfully!")
       
-      // Update local state immediately so UI updates
+      // Update local state and redirect immediately
       setGame(prev => ({ ...prev, status: "playing" }))
+      
+      // Redirect host to game
+      router.push(`/game/${game.id}`)
+      router.refresh()
     } catch (err) {
       console.error("Failed to start game:", err)
     } finally {
@@ -265,7 +275,9 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-2xl">Game Lobby</CardTitle>
-                <CardDescription>Waiting for players to join...</CardDescription>
+                <CardDescription>
+                  {game.status === "playing" ? "Game in progress!" : "Waiting for players to join..."}
+                </CardDescription>
               </div>
               <Button variant="outline" onClick={copyGameCode} className="gap-2 bg-transparent">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -327,27 +339,13 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
             {/* Action Buttons */}
             <div className="flex gap-3">
               {isHost ? (
-                <>
-                  <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="flex-1" size="lg">
-                    {loading ? "Starting..." : players.length < 2 ? "Need 2+ Players" : "Start Game"}
-                  </Button>
-                  {game.status === "playing" && (
-                    <Button onClick={() => { router.push(`/game/${game.id}`); router.refresh() }} className="flex-1" size="lg" variant="secondary">
-                      Go to Game
-                    </Button>
-                  )}
-                </>
+                <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="flex-1" size="lg">
+                  {loading ? "Starting..." : players.length < 2 ? "Need 2+ Players" : "Start Game"}
+                </Button>
               ) : (
-                <>
-                  <div className="flex-1 rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-                    Waiting for host to start the game...
-                  </div>
-                  {game.status === "playing" && (
-                    <Button onClick={() => { router.push(`/game/${game.id}`); router.refresh() }} className="flex-1" size="lg">
-                      Join Game
-                    </Button>
-                  )}
-                </>
+                <div className="flex-1 rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
+                  Waiting for host to start the game...
+                </div>
               )}
               <Button onClick={handleLeaveGame} variant="outline" size="lg">
                 Leave
