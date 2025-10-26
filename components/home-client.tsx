@@ -20,6 +20,7 @@ export default function HomeClient({ profile }: HomeClientProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [createdGame, setCreatedGame] = useState<any>(null)
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -169,7 +170,8 @@ export default function HomeClient({ profile }: HomeClientProps) {
   async function copyGameCode() {
     if (createdGame?.code) {
       await navigator.clipboard.writeText(createdGame.code)
-      // You could add a toast notification here
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -181,20 +183,14 @@ export default function HomeClient({ profile }: HomeClientProps) {
     }
   }
 
-  // Function to create another game
-  function createAnotherGame() {
-    setCreatedGame(null)
-    setError("")
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
       <div className="mb-8 text-center">
-        <div className="mb-4 flex items-center justify-center gap-3">
-          <Zap className="h-12 w-12 text-red-500" />
-          <h1 className="text-5xl font-bold text-white">KOMBIO</h1>
+        <div className="mb-4 flex items-center justify-center gap-3 group">
+          <Zap className="h-12 w-12 text-red-500 transition-transform duration-300 group-hover:scale-110" />
+          <h1 className="text-5xl font-bold text-white transition-transform duration-300 group-hover:scale-110">KOMBIO</h1>
         </div>
-        <p className="text-lg text-gray-300">The Ultimate Card Matching Game</p>
+        <p className="text-lg text-gray-300 transition-transform duration-300 hover:scale-105">The Ultimate Card Matching Game</p>
       </div>
 
       <Card className="w-full max-w-md shadow-xl bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
@@ -206,7 +202,7 @@ export default function HomeClient({ profile }: HomeClientProps) {
                 {createdGame ? "Game created successfully!" : "Create or join a game to start playing"}
               </CardDescription>
             </div>
-            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out" className="bg-white border-2 border-red-500 text-red-500 hover:bg-red-500 hover:border-white hover:text-white transition-all duration-300">
+            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out" className="bg-white border-2 border-red-500 text-red-500 hover:bg-red-500 hover:border-red-500 hover:text-white transition-all duration-300">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -229,18 +225,15 @@ export default function HomeClient({ profile }: HomeClientProps) {
                 <p className="text-sm text-gray-300 mb-2">Game Code</p>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-3xl font-bold text-white tracking-wider">{createdGame.code}</span>
-                  <Button variant="outline" size="sm" onClick={copyGameCode}>
-                    <Copy className="w-4 h-4" />
+                  <Button variant="outline" size="sm" onClick={copyGameCode} className={copied ? "bg-green-500 border-green-400 hover:bg-green-600 hover:scale-110" : "hover:bg-blue-600 hover:border-blue-500 hover:scale-110 hover:shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all duration-300"}>
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
               
-              <div className="space-y-3">
-                <Button onClick={goToLobby} className="w-full bg-red-600 hover:bg-blue-600" size="lg">
+              <div className="flex justify-center">
+                <Button onClick={goToLobby} className="w-auto px-8 bg-red-600 hover:bg-red-700 hover:scale-110 hover:shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all duration-300" size="lg">
                   Go to Lobby
-                </Button>
-                <Button onClick={createAnotherGame} variant="outline" className="w-full border-gray-700 text-gray-300 hover:bg-gray-700" size="lg">
-                  Create Another Game
                 </Button>
               </div>
             </div>

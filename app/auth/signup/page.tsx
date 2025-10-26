@@ -51,7 +51,7 @@ export default function SignUpPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
       <Card className="w-full max-w-md shadow-xl bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-white">Join KOMBIO</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-white transition-transform duration-300 hover:scale-105">Join KOMBIO</CardTitle>
           <CardDescription className="text-center text-gray-300">Create your account to start playing</CardDescription>
         </CardHeader>
         <CardContent>

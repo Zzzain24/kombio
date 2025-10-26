@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { Game, GamePlayer } from "@/lib/types"
-import { Copy, Check, Users, Crown, ArrowLeft } from "lucide-react"
+import { Copy, Check, Users, Crown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -156,21 +156,6 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
     setTimeout(() => setCopied(false), 2000)
   }
 
-  async function handleUpdateSettings() {
-    if (!isHost) return
-
-    setLoading(true)
-    try {
-      await supabase.from("games").update({ max_rounds: maxRounds }).eq("id", game.id)
-      // Update local state immediately
-      setGame(prev => ({ ...prev, max_rounds: maxRounds }))
-    } catch (err) {
-      console.error("Failed to update settings:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   async function handleStartGame() {
     if (!isHost || players.length < 2) return
 
@@ -260,26 +245,22 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-2xl space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => router.push("/")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
+        <div className="flex items-center justify-center">
+          <h1 className="text-4xl font-bold text-white transition-transform duration-300 hover:scale-110">
             Lobby
-          </Badge>
+          </h1>
         </div>
 
-        <Card className="shadow-xl bg-gray-800 border-gray-700">
+        <Card className="shadow-xl bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl">Game Lobby</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-2xl text-white">Game Lobby</CardTitle>
+                <CardDescription className="text-gray-300">
                   {game.status === "playing" ? "Game in progress!" : "Waiting for players to join..."}
                 </CardDescription>
               </div>
-              <Button variant="outline" onClick={copyGameCode} className="gap-2 bg-transparent">
+              <Button variant="outline" onClick={copyGameCode} className="gap-2 border-gray-700 bg-gray-700 text-gray-300 hover:bg-blue-600 hover:border-blue-500 hover:text-white hover:scale-110 hover:shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all duration-300">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {game.code}
               </Button>
@@ -288,21 +269,21 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
           <CardContent className="space-y-6">
             {/* Players List */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
+              <div className="flex items-center gap-2 text-sm font-medium text-white">
                 <Users className="h-4 w-4" />
                 Players ({players.length}/4)
               </div>
               <div className="grid gap-2">
                 {players.map((player) => (
-                  <div key={player.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
+                  <div key={player.id} className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-700 p-3 hover:bg-gray-600 hover:border-blue-500 hover:shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-all duration-300">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/20 font-semibold text-red-500">
                         {player.profile?.display_name?.[0] || "P"}
                       </div>
-                      <span className="font-medium">{player.profile?.display_name || "Player"}</span>
+                      <span className="font-medium text-white">{player.profile?.display_name || "Player"}</span>
                     </div>
                     {player.user_id === game.host_id && (
-                      <Badge variant="secondary" className="gap-1">
+                      <Badge variant="secondary" className="gap-1 bg-yellow-500/20 text-yellow-500 border-yellow-500/50">
                         <Crown className="h-3 w-3" />
                         Host
                       </Badge>
@@ -314,40 +295,44 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
 
             {/* Game Settings (Host Only) */}
             {isHost && (
-              <div className="space-y-3 rounded-lg border bg-muted/50 p-4">
-                <h3 className="font-semibold">Game Settings</h3>
+              <div className="space-y-3 rounded-lg border border-gray-700 bg-gray-700 p-4">
+                <h3 className="font-semibold text-white">Game Settings</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="maxRounds">Number of Rounds</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="maxRounds"
-                      type="number"
-                      min={1}
-                      max={10}
-                      value={maxRounds}
-                      onChange={(e) => setMaxRounds(Number.parseInt(e.target.value) || 5)}
-                      className="w-24"
-                    />
-                    <Button onClick={handleUpdateSettings} disabled={loading} className="bg-red-600 hover:bg-blue-600" size="sm">
-                      Update
-                    </Button>
-                  </div>
+                  <Label htmlFor="maxRounds" className="text-gray-300">Number of Rounds</Label>
+                  <Input
+                    id="maxRounds"
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={maxRounds}
+                    onChange={async (e) => {
+                      const value = Number.parseInt(e.target.value) || 1
+                      const clampedValue = Math.max(1, Math.min(10, value))
+                      setMaxRounds(clampedValue)
+                      try {
+                        await supabase.from("games").update({ max_rounds: clampedValue }).eq("id", game.id)
+                      } catch (err) {
+                        console.error("Failed to update settings:", err)
+                      }
+                    }}
+                    className="w-24 bg-gray-700 border-gray-600 text-white focus-visible:border-blue-500 focus-visible:ring-blue-500/50"
+                  />
                 </div>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-center">
               {isHost ? (
-                <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="flex-1 bg-red-600 hover:bg-blue-600" size="lg">
+                <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="w-auto px-8 bg-blue-600 hover:bg-blue-700 hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-300" size="lg">
                   {loading ? "Starting..." : players.length < 2 ? "Need 2+ Players" : "Start Game"}
                 </Button>
               ) : (
-                <div className="flex-1 rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
+                <div className="flex-1 rounded-lg border border-gray-700 bg-gray-700 p-4 text-center text-sm text-gray-300 flex items-center justify-center">
                   Waiting for host to start the game...
                 </div>
               )}
-              <Button onClick={handleLeaveGame} variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-700" size="lg">
+              <Button onClick={handleLeaveGame} variant="outline" className={`w-auto px-8 bg-red-600 border-red-500 text-white hover:bg-red-700 hover:text-white hover:border-red-600 hover:scale-105 hover:shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all duration-300 ${!isHost ? 'h-auto py-4' : ''}`} size="lg">
                 Leave
               </Button>
             </div>

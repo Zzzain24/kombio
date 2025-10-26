@@ -10,7 +10,7 @@ export default function CheckEmailPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
             <Mail className="h-6 w-6 text-red-500" />
           </div>
-          <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
+          <CardTitle className="text-2xl font-bold transition-transform duration-300 hover:scale-105">Check your email</CardTitle>
           <CardDescription>We've sent you a confirmation link to verify your account</CardDescription>
         </CardHeader>
         <CardContent className="text-center">

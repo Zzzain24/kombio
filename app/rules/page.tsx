@@ -8,7 +8,7 @@ export default function RulesPage() {
     <div className="min-h-screen bg-gray-900 p-4">
       <div className="mx-auto max-w-4xl space-y-6 py-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-white">KOMBIO Rules</h1>
+          <h1 className="text-4xl font-bold text-white transition-transform duration-300 hover:scale-105">KOMBIO Rules</h1>
           <Link href="/">
             <Button variant="outline" className="gap-2 bg-blue-500 border border-blue-400 text-white hover:bg-blue-600 hover:text-white hover:scale-105 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
               <ArrowLeft className="h-4 w-4" />
