@@ -84,8 +84,9 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
       )
       .subscribe()
 
-    // Polling as backup - check game status every 2 seconds
+    // Polling as backup - check game status and players every 2 seconds
     const pollInterval = setInterval(async () => {
+      // Check game status
       const { data: latestGame } = await supabase
         .from("games")
         .select("status")
@@ -105,14 +106,43 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
           setGame(fullGame as Game)
         }
       }
-    }, 2000)
+
+      // Check for player updates as backup
+      const { data: latestPlayers } = await supabase
+        .from("game_players")
+        .select("*")
+        .eq("game_id", game.id)
+        .order("player_order")
+
+      if (latestPlayers) {
+        const playersWithProfiles = []
+        for (const player of latestPlayers) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", player.user_id)
+            .single()
+          
+          playersWithProfiles.push({
+            ...player,
+            profile: profile
+          })
+        }
+        
+        // Only update if player count changed to avoid unnecessary re-renders
+        if (playersWithProfiles.length !== players.length) {
+          console.log("Lobby - Polling detected player count change")
+          setPlayers(playersWithProfiles)
+        }
+      }
+}, 5000) // Poll every 5 seconds as backup
 
     return () => {
       gameChannel.unsubscribe()
       playersChannel.unsubscribe()
       clearInterval(pollInterval)
     }
-  }, [game.id, game.status, router, supabase])
+  }, [game.id, game.status, router, supabase, players.length])
 
   async function copyGameCode() {
     await navigator.clipboard.writeText(game.code)
