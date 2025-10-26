@@ -5,23 +5,23 @@ import Link from "next/link"
 
 export default function RulesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-gray-900 p-4">
       <div className="mx-auto max-w-4xl space-y-6 py-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-indigo-900">KOMBIO Rules</h1>
+          <h1 className="text-4xl font-bold text-white">KOMBIO Rules</h1>
           <Link href="/">
-            <Button variant="outline" className="gap-2 bg-transparent">
+            <Button variant="outline" className="gap-2 bg-blue-500 border border-blue-400 text-white hover:bg-blue-600 hover:text-white hover:scale-105 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
           </Link>
         </div>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Overview</CardTitle>
+            <CardTitle className="text-white">Overview</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <p>
               Get the lowest score by viewing, swapping and matching cards. A game consists of multiple rounds, each
               player adds their score each round.
@@ -29,11 +29,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Setup</CardTitle>
+            <CardTitle className="text-white">Setup</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <ul className="list-disc list-inside space-y-2">
               <li>Deal four cards, face down, to each player in a 2x2 grid</li>
               <li>At the beginning of each round, players can view their bottom two cards once</li>
@@ -41,11 +41,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Gameplay</CardTitle>
+            <CardTitle className="text-white">Gameplay</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <p>
               On your turn, draw a card from the deck or discard pile. You can either exchange it with a card from your
               hand or discard it directly to use its ability (if it has one).
@@ -73,11 +73,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Matching</CardTitle>
+            <CardTitle className="text-white">Matching</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <p>
               At any time, you can attempt to match the last discarded card with a card from your hand or an opponent's
               hand. A successful match removes the card from play.
@@ -88,11 +88,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Calling KOMBIO</CardTitle>
+            <CardTitle className="text-white">Calling KOMBIO</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <p>
               Instead of taking a turn, you can call "KOMBIO" to end the round. All other players get one more turn
               before scoring.
@@ -103,11 +103,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Scoring</CardTitle>
+            <CardTitle className="text-white">Scoring</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-gray-300">
             <p>After the last turn, players reveal their cards and add up the values.</p>
             <div className="space-y-2">
               <h4 className="font-semibold">KOMBIO Scoring:</h4>
@@ -128,11 +128,11 @@ export default function RulesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
           <CardHeader>
-            <CardTitle>Winning</CardTitle>
+            <CardTitle className="text-white">Winning</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="text-gray-300">
             <p>After all rounds are complete, the player with the lowest cumulative score wins!</p>
           </CardContent>
         </Card>

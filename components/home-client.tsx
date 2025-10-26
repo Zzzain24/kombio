@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Profile } from "@/lib/types"
-import { Spade, LogOut, Check, Copy } from "lucide-react"
+import { Zap, LogOut, Check, Copy } from "lucide-react"
 
 interface HomeClientProps {
   profile: Profile | null
@@ -188,25 +188,25 @@ export default function HomeClient({ profile }: HomeClientProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
       <div className="mb-8 text-center">
         <div className="mb-4 flex items-center justify-center gap-3">
-          <Spade className="h-12 w-12 text-indigo-600" />
-          <h1 className="text-5xl font-bold text-indigo-900">KOMBIO</h1>
+          <Zap className="h-12 w-12 text-red-500" />
+          <h1 className="text-5xl font-bold text-white">KOMBIO</h1>
         </div>
-        <p className="text-lg text-indigo-700">The Ultimate Card Matching Game</p>
+        <p className="text-lg text-gray-300">The Ultimate Card Matching Game</p>
       </div>
 
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-md shadow-xl bg-gray-800 border-gray-700 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Welcome, {profile?.display_name}!</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Welcome, {profile?.display_name}!</CardTitle>
+              <CardDescription className="text-gray-300">
                 {createdGame ? "Game created successfully!" : "Create or join a game to start playing"}
               </CardDescription>
             </div>
-            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out">
+            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign out" className="bg-white border-2 border-red-500 text-red-500 hover:bg-red-500 hover:border-white hover:text-white transition-all duration-300">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -216,19 +216,19 @@ export default function HomeClient({ profile }: HomeClientProps) {
             // Show game created success UI
             <div className="space-y-6">
               <div className="text-center space-y-4">
-                <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto">
-                  <Check className="w-8 h-8 text-green-600" />
+                <div className="flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mx-auto">
+                  <Check className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Game Created!</h3>
-                  <p className="text-sm text-gray-600">Share this code with your friends</p>
+                  <h3 className="text-lg font-semibold text-white">Game Created!</h3>
+                  <p className="text-sm text-gray-300">Share this code with your friends</p>
                 </div>
               </div>
               
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-600 mb-2">Game Code</p>
+              <div className="bg-gray-700 rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-300 mb-2">Game Code</p>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-3xl font-bold text-indigo-600 tracking-wider">{createdGame.code}</span>
+                  <span className="text-3xl font-bold text-white tracking-wider">{createdGame.code}</span>
                   <Button variant="outline" size="sm" onClick={copyGameCode}>
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -236,10 +236,10 @@ export default function HomeClient({ profile }: HomeClientProps) {
               </div>
               
               <div className="space-y-3">
-                <Button onClick={goToLobby} className="w-full" size="lg">
+                <Button onClick={goToLobby} className="w-full bg-red-600 hover:bg-blue-600" size="lg">
                   Go to Lobby
                 </Button>
-                <Button onClick={createAnotherGame} variant="outline" className="w-full">
+                <Button onClick={createAnotherGame} variant="outline" className="w-full border-gray-700 text-gray-300 hover:bg-gray-700" size="lg">
                   Create Another Game
                 </Button>
               </div>
@@ -253,14 +253,14 @@ export default function HomeClient({ profile }: HomeClientProps) {
                   <TabsTrigger value="join">Join Game</TabsTrigger>
                 </TabsList>
                 <TabsContent value="create" className="space-y-4">
-                  <p className="text-sm text-muted-foreground">Start a new game and invite your friends</p>
-                  <Button onClick={handleCreateGame} disabled={loading} className="w-full" size="lg">
+                  <p className="text-sm text-gray-300">Start a new game and invite your friends</p>
+                  <Button onClick={handleCreateGame} disabled={loading} className="w-full bg-red-600 hover:bg-blue-600" size="lg">
                     {loading ? "Creating..." : "Create New Game"}
                   </Button>
                 </TabsContent>
                 <TabsContent value="join" className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="gameCode">Game Code</Label>
+                    <Label htmlFor="gameCode" className="text-white">Game Code</Label>
                     <Input
                       id="gameCode"
                       placeholder="Enter 6-character code"
@@ -268,10 +268,10 @@ export default function HomeClient({ profile }: HomeClientProps) {
                       onChange={(e) => setGameCode(e.target.value.toUpperCase())}
                       maxLength={6}
                       disabled={loading}
-                      className="uppercase"
+                      className="uppercase bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus-visible:border-blue-500 focus-visible:ring-blue-500/50"
                     />
                   </div>
-                  <Button onClick={handleJoinGame} disabled={loading || gameCode.length !== 6} className="w-full" size="lg">
+                  <Button onClick={handleJoinGame} disabled={loading || gameCode.length !== 6} className="w-full bg-red-600 hover:bg-blue-600" size="lg">
                     {loading ? "Joining..." : "Join Game"}
                   </Button>
                 </TabsContent>
@@ -283,7 +283,7 @@ export default function HomeClient({ profile }: HomeClientProps) {
       </Card>
 
       <div className="mt-8 text-center">
-        <Button variant="link" onClick={() => router.push("/rules")} className="text-indigo-600">
+        <Button onClick={() => router.push("/rules")} className="bg-blue-500 border border-blue-400 text-white hover:bg-blue-600 hover:scale-105 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
           View Game Rules
         </Button>
       </div>

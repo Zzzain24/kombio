@@ -258,7 +258,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-2xl space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => router.push("/")} className="gap-2">
@@ -270,7 +270,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
           </Badge>
         </div>
 
-        <Card className="shadow-xl">
+        <Card className="shadow-xl bg-gray-800 border-gray-700">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -328,7 +328,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
                       onChange={(e) => setMaxRounds(Number.parseInt(e.target.value) || 5)}
                       className="w-24"
                     />
-                    <Button onClick={handleUpdateSettings} disabled={loading} variant="secondary" size="sm">
+                    <Button onClick={handleUpdateSettings} disabled={loading} className="bg-red-600 hover:bg-blue-600" size="sm">
                       Update
                     </Button>
                   </div>
@@ -339,7 +339,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
             {/* Action Buttons */}
             <div className="flex gap-3">
               {isHost ? (
-                <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="flex-1" size="lg">
+                <Button onClick={handleStartGame} disabled={loading || players.length < 2} className="flex-1 bg-red-600 hover:bg-blue-600" size="lg">
                   {loading ? "Starting..." : players.length < 2 ? "Need 2+ Players" : "Start Game"}
                 </Button>
               ) : (
@@ -347,7 +347,7 @@ export default function LobbyClient({ game: initialGame, players: initialPlayers
                   Waiting for host to start the game...
                 </div>
               )}
-              <Button onClick={handleLeaveGame} variant="outline" size="lg">
+              <Button onClick={handleLeaveGame} variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-700" size="lg">
                 Leave
               </Button>
             </div>
