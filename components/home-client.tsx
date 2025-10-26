@@ -34,8 +34,29 @@ export default function HomeClient({ profile }: HomeClientProps) {
         throw new Error("Profile not found. Please refresh the page and try again.")
       }
 
-      // Generate a 6-character game code
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase()
+      // Generate a unique 6-character game code
+      let code
+      let attempts = 0
+      let isUnique = false
+      
+      while (!isUnique && attempts < 10) {
+        code = Math.random().toString(36).substring(2, 8).toUpperCase()
+        
+        const { data: existing } = await supabase
+          .from("games")
+          .select("id")
+          .eq("code", code)
+          .single()
+        
+        if (!existing) {
+          isUnique = true
+        }
+        attempts++
+      }
+      
+      if (!isUnique) {
+        throw new Error("Failed to generate unique game code. Please try again.")
+      }
 
       console.log("Creating game with:", { code, host_id: profile.id, status: "lobby" })
 
