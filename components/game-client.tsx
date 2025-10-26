@@ -104,6 +104,13 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
             }
             console.log("Updated players:", playersWithProfiles)
             setPlayers(playersWithProfiles)
+            
+            // If a player left during the game, redirect everyone to home
+            if (payload.eventType === "DELETE" && game.status === "playing" && data.length < players.length) {
+              console.log("Player left during game, redirecting to home")
+              router.push("/")
+              router.refresh()
+            }
           }
         },
       )
@@ -147,6 +154,13 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
         if (JSON.stringify(playersWithProfiles) !== JSON.stringify(players)) {
           console.log("Game - Polling detected players change")
           setPlayers(playersWithProfiles)
+          
+          // If player count decreased during gameplay, redirect to home
+          if (latestPlayers.length < players.length && game.status === "playing") {
+            console.log("Player left during game (polling detected), redirecting to home")
+            router.push("/")
+            router.refresh()
+          }
         }
       }
     }, 2000)
@@ -496,12 +510,24 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
     }
   }
 
+  async function handleLeaveGame() {
+    try {
+      // Remove current player from the game
+      await supabase.from("game_players").delete().eq("game_id", game.id).eq("user_id", currentUserId)
+      // Redirect to home
+      router.push("/")
+      router.refresh()
+    } catch (err) {
+      console.error("Failed to leave game:", err)
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 p-4">
       <Toaster />
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <Button variant="ghost" onClick={() => router.push("/")} className="gap-2 text-white hover:bg-white/10">
+        <Button variant="ghost" onClick={handleLeaveGame} className="gap-2 text-white hover:bg-white/10">
           <ArrowLeft className="h-4 w-4" />
           Leave Game
         </Button>
