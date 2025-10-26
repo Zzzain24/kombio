@@ -77,16 +77,18 @@ export default function LoginPage() {
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full bg-red-600 hover:bg-blue-600" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
+            <div className="flex justify-center">
+              <Button type="submit" className="w-auto px-8 bg-red-600 hover:bg-red-700 hover:shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all duration-300" disabled={loading}>
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </div>
           </form>
           <div className="mt-4 text-center text-sm text-white">
             {"Don't have an account? "}
             <Button
               variant="link"
               onClick={() => router.push("/auth/signup")}
-              className="text-red-500 hover:text-blue-500 p-0 h-auto"
+              className="text-red-500 hover:text-red-600 p-0 h-auto no-underline hover:no-underline"
             >
               Sign up
             </Button>
