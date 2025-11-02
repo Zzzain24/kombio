@@ -624,7 +624,7 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
               <Button
                 onClick={handleDrawFromDeck}
                 disabled={!isMyTurn || !!drawnCard || game.deck.length === 0 || isKombioLocked}
-                className="h-20 w-16 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                className="h-24 w-[4.5rem] rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
               >
                 <div className="flex flex-col items-center gap-1">
                   <Shuffle className="h-4 w-4" />
@@ -657,10 +657,10 @@ export default function GameClient({ game: initialGame, players: initialPlayers,
               <Button
                 onClick={handleDrawFromDiscard}
                 disabled={!isMyTurn || !!drawnCard || !game.last_discarded_card || isKombioLocked}
-                className="h-20 w-16 rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
+                className="h-24 w-[4.5rem] rounded-xl bg-gray-700 hover:bg-gray-600 disabled:opacity-50 p-0"
               >
                 {game.last_discarded_card ? (
-                  <GameCard card={game.last_discarded_card} revealed={true} compact />
+                  <GameCard card={game.last_discarded_card} revealed={true} />
                 ) : (
                   <div className="flex flex-col items-center gap-1">
                     <Eye className="h-4 w-4" />
