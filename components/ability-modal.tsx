@@ -135,8 +135,13 @@ export default function AbilityModal({
     (abilityType === 14 ? selectedCards.length === 2 : false)
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl">
+    <Dialog open={open} onOpenChange={() => {}}>
+      <DialogContent 
+        className="max-w-3xl"
+        showCloseButton={false}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Use Card Ability</DialogTitle>
           <DialogDescription>{getAbilityDescription(card.value)}</DialogDescription>
